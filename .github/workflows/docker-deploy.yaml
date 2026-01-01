@@ -43,13 +43,15 @@ jobs:
 
       # 6️⃣ Deploy to EC2
       - name: Deploy to EC2
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} <<EOF
+          ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} << 'EOF'
             # Stop existing container if running
             docker rm -f myapp || true
             # Pull latest image from Docker Hub
-            docker pull ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+            docker pull $DOCKER_USERNAME/myapp:latest
             # Run container
-            docker run -d -p 80:3000 --name myapp ${{ secrets.DOCKER_USERNAME }}/myapp:latest
-          EOF
+            docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest
+EOF
 
