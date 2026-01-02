@@ -41,7 +41,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@${{ secrets.SERVER_IP }} "\
+          ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@$SERVER_IP
             docker rm -f myapp || true && \
             docker pull $DOCKER_USERNAME/myapp:latest && \
             docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest"
