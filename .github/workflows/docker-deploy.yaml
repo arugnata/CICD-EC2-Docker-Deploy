@@ -8,28 +8,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      SERVER_IP: ${{ vars.SERVER_IP }}          # <-- Repo-level environment variable
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
     steps:
+      # 1️⃣ Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 2️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # 3️⃣ Build and push Docker image
       - name: Build & Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          docker build -t $DOCKER_USERNAME/myapp:latest .
+          docker push $DOCKER_USERNAME/myapp:latest
 
+      # 4️⃣ Configure SSH
       - name: Configure SSH
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+      # 5️⃣ Add EC2 Private Key
       - name: Add SSH Key
         run: |
           echo $SSH_KEY64 | base64 -d > mykey.pem
@@ -37,11 +45,12 @@ jobs:
         env:
           SSH_KEY64: ${{ secrets.SSH_KEY64 }}
 
+      # 6️⃣ Deploy to EC2
       - name: Deploy to EC2
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
+          echo "Deploying to EC2 at $SERVER_IP"
           ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "\
             docker rm -f myapp || true && \
             docker pull $DOCKER_USERNAME/myapp:latest && \
             docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest"
+
