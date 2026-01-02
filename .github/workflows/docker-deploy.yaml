@@ -50,7 +50,7 @@ jobs:
         run: |
           echo "Deploying to EC2 at $SERVER_IP"
           ssh -i mykey.pem -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "\
-            docker rm -f myapp || true && \
-            docker pull $DOCKER_USERNAME/myapp:latest && \
-            docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest"
+            sudo docker rm -f myapp || true && \
+            sudo docker pull $DOCKER_USERNAME/myapp:latest && \
+            sudo docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest"
 
