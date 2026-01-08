@@ -55,5 +55,5 @@ jobs:
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} &&
             docker ps -aq -f name=$CONTAINER_NAME | xargs -r docker rm -f &&
             docker pull $DOCKER_USERNAME/myapp:latest && \
-            docker run -d -p 80:80 --name myapp $DOCKER_USERNAME/myapp:latest"
+            docker run -d -p 80:3000 --name myapp $DOCKER_USERNAME/myapp:latest"
 
